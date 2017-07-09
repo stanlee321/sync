@@ -13,7 +13,6 @@ from subprocess import call
 
 def check_folder(path_to_file, extention):
 	cv_img = []
-	there_files = False
 	path = path_to_file
 	for img in glob.glob("{}*.{}".format(path,extention)):
 	    n = cv2.imread(img)
@@ -21,8 +20,7 @@ def check_folder(path_to_file, extention):
 	if len(cv_img) != 0:
 		#print(cv_img)
 		print('Folder not empty, folder len is ..', len(cv_img))
-		there_files = True
-		return there_files
+		return True
 	else:
 		print('No files in {}!!'.format(path_to_file))
 		return False
@@ -71,5 +69,7 @@ def read_data(img_glob):
 		code = fname.split("/")[1][-13:-4]
 
 		files.append([fname,img,code,date])
+
+		os.remove(fname)
 
 	return files
