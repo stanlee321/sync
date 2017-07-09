@@ -9,6 +9,7 @@ import numpy as np
 import ast
 import moviepy.editor as mpe
 import glob
+import cv2
 # Global variables
 files_exist = False
 
@@ -18,7 +19,7 @@ path_to_images = 'casosReportados/'
 path_to_cut_images = 'placasAreconocer/'
 name_to_workdir = 'WORKDIR'
 
-
+"""
 def create_video_from_images(path_to_convert_tovideo):
 	print(path_to_convert_tovideo)
 	img_glob = path_to_convert_tovideo + '*.jpg'
@@ -41,7 +42,7 @@ def create_video_from_images(path_to_convert_tovideo):
 	clip      = mpe.ImageSequenceClip(filenames, fps=fps)
 	clip.write_videofile(filename)
 	print("Done! video created")
-
+"""
 
 def check_files_existence():
 	global files_exist
@@ -60,6 +61,7 @@ def move_files_to_work_dir(files_exist):
 		print('len files', len(files))
 		files_cut = read_data(path_to_cut_images + '*.png')
 		print('len files', len(files_cut))
+
 		for file  in files:
 			namen = file[0]	#path to the image
 			img = file[1]	# image as array
@@ -99,8 +101,7 @@ def move_files_to_work_dir(files_exist):
 	
 	else:
 		print('There is not files in dir... /{}'.format(path_to_images))
-		moved = False
-		return moved
+		return False
 
 	#files_exist, images = check_folder(path_to_images)
 
@@ -157,10 +158,27 @@ def get_information_of_images(file_exist, image, idd, date):
 			print('saving the max PROB. confidence to txt log ...')
 			# full log
 			np.save(name_to_workdir+'/{}/'.format(idd)+'full_log_{}_{}.npy'.format(idd,date), information_of_the_image_as_json_file)
+			
 			with open(name_to_workdir+'/{}/'.format(idd)+'{}_{}.txt'.format(idd,date),'a') as f:
 				line = '{} {} {} {} {}'.format(idd, date, prob, plate, region)
 				f.write(line)
-		
+			# Save image with plate region labeled
+			font = cv2.FONT_HERSHEY_SIMPLEX
+
+			px0 = region[0]['x']
+			py0 = region[0]['y']
+			px1 = region[2]['x']
+			py1 = region[2]['y']
+
+			textx = region[0]['x']
+			texty = region[0]['y']
+
+			img = cv2.imread(image)
+			img = cv2.rectangle(img,(px0,py0),(px1,py1),(0,255,0),3)
+			img = cv2.putText(img,plate,(textx,int(texty*0.95)), font, 1,(0,255,3),2,cv2.LINE_AA)
+			scipy.misc.imsave(name_to_workdir+'/{}/'.format(idd)+'{}_{}.jpg'.format(idd,date),img)
+			
+
 
 
 if __name__ == '__main__':
